@@ -1,0 +1,124 @@
+.\"Modified from man(1) of FreeBSD, the NetBSD mdoc.template, and mdoc.samples.
+.\"See Also:
+.\"man mdoc.samples for a complete listing of options
+.\"man mdoc for the short list of editing options
+.\"/usr/share/misc/mdoc.template
+.Dd Fri Apr 11 2003               \" DATE 
+.Dt SequenceNet 1      \" Program name and manual section number 
+.Os Darwin
+.Sh NAME                 \" Section Header - required - don't modify 
+.Nm seqnet
+.\" The following lines are read in generating the apropos(man -k) database. Use only key
+.\" words here as the database is built based on the words here and in the .ND line. 
+.\" Use .Nm macro to designate other names for the documented program.
+.Nd executable for the SequenceNet API Library.
+.Sh SYNOPSIS             \" Section Header - required - don't modify
+.Nm
+.Op Fl reilptEaRbdfFv
+.Op Fl r Ar runs
+.Op Fl e Ar epochs
+.Op Fl i Ar iterations
+.Op Fl l Ar recalls
+.Op Fl p Ar type
+.Op Fl t Ar type
+.Op Fl E Ar criterion
+.Op Fl a Ar criterion
+.Op Fl R Ar criterion
+.Op Fl b Ar name
+.Op Fl d Ar directory
+.Op Fl f Ar index
+.Op Fl F Ar index
+.Op Fl v Ar verbosity
+.Nm
+.Op Fl h
+
+.Sh DESCRIPTION          \" Section Header - required - don't modify
+.Nm 
+sets up a SequenceNet neural network architecture and trains it with a set of stimuli that are provided either online or offline. It requires the user to specify the basename of the network specification file and optional pattern files as well as the directory in which these files reside.
+.Pp
+The run-time options are as follows:
+.Bl -tag -width -indent  \" Differs from above in tag removed 
+.It Fl h                 \"-a flag as a list item
+Display the set of options and their default values.
+.It Fl r
+Specify how often a given simulation should be replicated. The default value is 1. Providing any number below 1 makes you an idiot.
+.It Fl e
+Specify the number of epochs. The interpretation of 
+.Ar epochs
+depends on the simulation, but for multiple sequence training it refers to a single presentation of a set of sequences.
+.It Fl i
+Specify how often a single sequence is presented to the network.
+.It Fl l
+Specify the number of update cycles the network has to process during a single recall phase.
+.It Fl p
+For multiple sequence learning, specify how a set of sequences is trained. Each new sequence can be added to the current training set in incremental (0) or in permuted order (1). 
+.It Fl t
+Override the type of sequence indicated in the pattern file as well as the default type. Sequences can be cyclic (0) or terminating. The latter kind of sequences either terminate with the last pattern (1) or with a vector with a random distribution. 
+.It Fl E
+Specify the error criterion during training. In combination with the
+.Fl a
+option, it determines when a given sequence has been trained successfully.
+.It Fl a
+Specify the value of the learning rate that determines if a sequence has been trained successfully. Normally, this value corresponds to the minimum learning rate indicated in the network specification file.
+.It Fl R
+Specify when a given recall is correct. This value corresponds to the Euclidean distance between the network's predicted output and the closest match of a given set of possible sequence patterns.
+.It Fl b
+Provide the base filename (
+.Ar example
+) of a network specification file (
+.Ar example.net
+) as well as the pattern files for offline learning (
+.Ar example.pat
+). 
+.It Fl d
+Provide the directory in which the network specification file and pattern files reside.
+.It Fl f
+For offline training of multiple sequences using the MultiSequence protocol, use this flag to indicate the number of sequences (i.e. pattern files) to use for training.
+.It Fl F
+For offline training of multiple sequences using the MultiSequence protocol, use this flag to indicate the index of the first sequence (i.e. pattern file) to start training with.
+.It Fl v
+Indicate the verbosity level of the network. This will specify what information the simulator will report to the standard output during training and testing. The argument is the sum of the following optional values:
+.Pp
+.Bl -tag -width indent -compact
+.It 0
+Silent mode.
+.It 1
+Print output activations.
+.It 2
+Print rounded output activations (as 0 or 1).
+.It 4
+Print current learning rate and sum of activations over all intermediate layers.
+.It 8
+Print output of coincidence detection layer
+.It 16
+Print detailed progress during offline training of multiple sequences.
+.It 32
+Save intermediate weight changes to file.
+.It 64
+Save the sum of activation values over all intermediate layers during recalls.
+.El
+.El                      \" Ends the list
+.Pp
+.Sh FILES                \" File used or created by the topic of the man page
+.Bl -tag -width "simulations/" -compact
+.It Pa seqlib/
+Source files and binary for the SequenceNet API library. Don't mess in there!
+.It Pa simulations/
+Example simulation files. Abuse at will.
+.\" .Sh DIAGNOSTICS       \" May not be needed
+.\" .Bl -diag
+.\" .It Diagnostic Tag
+.\" Diagnostic informtion here.
+.\" .It Diagnostic Tag
+.\" Diagnostic informtion here.
+.El
+.Sh SEE ALSO 
+.\" List links in ascending order by section, alphabetically within a section.
+.\" Please do not reference files that do not exist without filing a bug report
+The online documentation for the use of the API, found at 
+.Pp
+.Dl http://www.kung-foo.tv/seqapi.php
+
+.\" .Sh BUGS              \" Document known, unremedied bugs 
+.\" .Sh HISTORY           \" Document history if command behaves in a unique manner 
+

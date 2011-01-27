@@ -1,0 +1,23 @@
+.SILENT:
+
+CC = g++ -O4 -funroll-all-loops -fexpensive-optimizations
+AR = ar
+RM = rm -f
+TOUCH = touch
+
+WHERE=`pwd`/
+
+OPTIONS = 
+MFLAGS = all
+
+OBJECT_DIR = obj/
+LIBRARY_DIR = seqlib/lib/
+INCLUDE_DIR = -I$(WHERE)$(LEVEL)seqlib/include/ -I$(WHERE)$(LEVEL)include/
+LO = $(WHERE)$(LEVEL)$(OBJECT_DIR)
+LL = $(WHERE)$(LEVEL)$(LIBRARY_DIR)
+
+LIBDIRS = -L$(LL)
+
+LIBS = -lseq
+
+

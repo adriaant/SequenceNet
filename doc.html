@@ -1,0 +1,338 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <meta name="author" content="Adriaan Tijsseling" />
+  <meta name="copyright" content="Creative Commons Attribution-NonCommercial-NoDerivs 2.5 License" />
+  <meta name="robots" content="all" />
+  <title>infinite-sushi.com: SequenceNet API</title>
+  <link rel="stylesheet" type="text/css" media="screen" href="http://infinite-sushi.com/styles/basic.css" />
+</head>
+<body>
+
+<h2>SequenceNet API</h2>
+
+<ul>
+<li><a href="#1">Introduction</a></li>
+<li><a href="#3">Installation</a></li>
+<li><a href="#4">Quickstart</a></li>
+<li><a href="#5">File Format</a></li>
+<li><a href="#6">Usage</a></li>
+</ul>
+
+<a name="1"></a>
+<h3>Introduction</h3>
+
+<p>
+The SequenceNet-API is a C++ code library for the multiple sequence learning neural architecture 
+developed by <a href="http://staff.aist.go.jp/luc.berthouze/">Luc Berthouze</a> and Adriaan Tijsseling. The API provides the necessary interface routines for the user to access data and methods of the neural network implementation, with support for both online and offline learning. The API library is designed in OOP-style, allowing access via an encapsulated interface. Employing calls to an instantiated API library , the user can flexibly design a set of routines to run a simulation. Example simulation code is included in the downloadable archive. 
+</p>
+
+<a name="3"></a>
+<h3>Installation</h3>
+<p>
+Unpack the downloaded tar.gz file in the directory of your choosing. To compile the library, navigate to the subdirectory <code class="yellow">seqlib/</code> and just issue a <code class="green">make</code> command. The Makefile located in the top directory will compile an executable based on the library and a set of simulation code files, which you will need to specify. (If you are using Project Builder, you will need to modify the working directory in the Custom Build Command Settings of the "seqlib" and "seqnet" targets.) Included in the package are <code class="yellow">Main.cpp</code> and <code class="yellow">MultiSequence.cpp</code>, both of which do not need any modification. The first file creates a command-line executable that can be called with a set of run-time options, described in <code class="yellow">Main.cpp</code> as well as the man page. The second file is a support file for training the network with a set of offline sequences. The files <code class="yellow">SingleOffline.cpp</code>, <code class="yellow">SingleOnline.cpp</code>, <code class="yellow">MultiOffline.cpp</code>, and <code class="yellow">MultiOnline.cpp</code> provide extensively commented illustrative examples for offline and online training of single sequences and multiple sequences, respectively. 
+</p><p>
+In addition, sample network specification and pattern files are also included in the directory <code class="yellow">simulations/</code>. The <code class="yellow">multionline/</code> subdirectory provides the necessary files to run the sample online training procedure. The patterns are the responses from Gabor filters applied to four different sequences of facial expression movements. The <code class="yellow">tekken/</code> subdirectory contains the sample files for the offline training of multiple sequences described in the PDF document. 
+</p>
+
+<a name="4"></a>
+<h3>Quickstart</h3>
+<p>
+As a quickstart, issue a <code class="green">make</code> command in the top directory after you have built the library and run the executable with:<br />
+<code class="green">./seqnet -F 0 -f 10 -b king -d simulations/tekken -p 0 -e 1000 > simulations/tekken/log.txt</code><br />
+(See the man page for a detailed explanation of the command line options or do a <code class="green">./seqnet -h</code>). This will set up the network for training a set of 10 overlapping sequences defined in the indexed patterns inside the <code class="yellow">simulations/tekken/</code> directory. The first sequence is trained and when it has been recalled correctly, the next sequence is added. If it was not recalled correctly, it is trained again. The output sent to the console looks as follows:
+</p>
+<pre>
+2       1       100
+22      2       86.3636 90.9091
+8       3       75      75      100
+23      4       86.9565 47.8261 65.2174 100
+44      5       97.7273 54.5455 56.8182 84.0909 97.7273
+55      6       61.8182 47.2727 41.8182 81.8182 78.1818 70.9091
+13      7       38.4615 15.3846 15.3846 61.5385 76.9231 7.69231 46.1538
+49      8       69.3878 30.6122 30.6122 36.7347 79.5918 26.5306 48.9796 83.6735
+31      9       77.4194 6.45161 38.7097 51.6129 25.8065 41.9355 38.7097 87.0968 96.7742
+62      10      74.1935 8.06452 22.5806 69.3548 72.5806 9.67742 37.0968 64.5161 88.7097 69.3548
+simulation took 59 seconds and 25 microsecs
+</pre>
+<p>
+The first column shows the total number of epochs required to train the current set of sequences the number of which is indicated in the second column. The subsequent columns show the percentage of epochs during which the given sequence needed to be trained. In the first row, for example, the first sequence was trained for 2 epochs (a sequence is trained for a maximum of 10 iterations only, but this value can, of course, be changed via the command line options). After 2 epochs, it was recalled correctly and the second sequence was added. To obtain a correct recall for this set of two sequences, the network required 22 epochs with the first sequence requiring training during 86% of the total number of epochs, and the second sequence 91%. 
+</p><p>
+The output sent to <code class="yellow">log.txt</code> shows detailed information on the learning progress, providing averaged values for the recall error, the number of iterations required during an epoch before the learning error and the learning rate value were below criterion, as well as the average learning rate value. There's much to explore here. 
+</p>
+<pre>
+current stats up to 1 sequence
+number of epochs: 2
+sequence: 0
+number of recall trials:        3  
+average recall error:           0.229 
+number of training trials:      2  
+average iterations trained:     9.00  
+average learning rate:          0.0538
+
+___ ADDING SEQUENCE 2 ___
+
+current stats up to 2 sequences
+number of epochs: 22
+sequence: 0
+number of recall trials:        21 
+average recall error:           0.299 
+number of training trials:      19 
+average iterations trained:     4.00  
+average learning rate:          0.0100
+sequence: 1
+number of recall trials:        22 
+average recall error:           0.313 
+number of training trials:      20 
+average iterations trained:     4.90  
+average learning rate:          0.0187
+</pre>
+<p>
+The formatting for the progress reports illustrated above is defined in <code class="green">MultiSequence::PrintStats</code>.
+</p>
+
+<a name="5"></a>
+<h3>File Format</h3>
+<p>
+Specifications for the network architecture and definition of sequences (when learning offline) are defined in text files with appropriate suffixes. These files should be in the same directory and share the same base name. Since the neural network is designed to learn multiple sequences, there is naturally a set of pattern files, each defining a single sequence. These filenames should conform to the format
+"<code class="yellow">basename-</code><code class="green">index</code><code class="yellow">.pat</code>" with <code class="green">index</code> a number starting at 0. For example, <code class="yellow">multi-0.pat</code>, <code class="yellow">multi-1.pat</code>, and so on. The following extensions are required:<br />
+ <code class="yellow">.net</code>: specifications for the network<br />
+ <code class="yellow">.pat</code>: training patterns<br />
+Network specification files should be in the following format:</p>
+<pre>
+# comments follow a hedge. The API will ignore the rest of the line.
+6       # the number of layers in the central module
+16      # the layer size of all layers but the context layers
+16      # the size of the context layer
+0.1     # maximum learning rate value. If dynamic adjustment is off, 
+        # this becomes the static learning rate, otherwise 
+        # it is the learning rate parameter in the adjustment function
+# each layer has it's own values for leaky integration, threshold and subtraction.
+# these are linearly set for each layer
+0.9     # maximum leaky integration value
+0.1     # decrement leaky integration. 
+0.4     # maximum subtraction value
+0.045   # decrement subtraction value
+1.0     # maximum threshold
+0.0     # threshold decrement value
+-20.0   # sigmoid value
+1e-05   # synaptic noise amplitude
+0.1     # threshold for coincidence detector
+3       # starting time delay for coincidence detector
+1       # time delay increment for coincidence detector
+0.01    # base rate learning
+0.01    # learning rate increment/decrement value
+0.01    # learning rate change momentum
+1.0     # initial weight value of coincidence detector
+1.0     # weight value increment for each next unit
+</pre>
+<p>
+In case of offline learning, one or more pattern files should be provided, each file describing a single sequence. The first line indicates the number of patterns in the sequence and the type of the sequence. A sequence can be <code class="cyan">cyclic</code> (encoded by 0), <code class="cyan">terminating in the last pattern</code> (1) or <code class="cyan">terminating in a noise signal</code> (2). The subsequent lines specify the patterns. For example:</p>
+<pre>
+# sequence has length 5 and is cyclic
+5 0
+# set of patterns
+1 1 1 1 0 0 1 0
+1 1 0 0 1 1 1 0
+0 0 1 1 1 0 0 1
+0 0 0 1 1 0 1 1
+0 0 1 0 0 1 1 1
+</pre>
+<p>If you are using the MultiSequence offline training object, the entire sequence set can be tested using a function provided in <code class="yellow">MultiSequence.cpp</code>. Three files should be defined in the same directory as the network and pattern files, but their names should be provided by the user. The first file lists all the patterns used in all sequence, each pattern preceded by a label:</p>
+<pre>
+# 11 patterns make up all the sequences
+11
+# set of patterns with labels
+B 1 1 1 1 0 0 1 0
+C 1 1 0 0 1 1 1 0
+D 0 0 1 1 1 0 0 1
+etc. 
+</pre>
+<p>The second file lists the contexts that have been used to teach each sequence, and which are again preceded by labels:</p>
+<pre>
+# 12 contexts are in use
+12
+# set of contexts with labels
+a 1 0 0 0 0 0 0 0
+b 1 1 0 0 0 0 0 0
+c 1 1 1 0 0 0 0 0
+etc. 
+</pre>
+<p>The last file lists the patterns that should be used to cue a recall. Each cue indicates the number of contexts it is associated with, so that with each cue the correct context is set:</p>
+<pre>
+# 2 cues
+2
+# set of cues with labels and context count
+A 7 0 1 0 0 0 0 1
+F 5 0 0 0 1 0 1 0
+</pre>
+<p>The API loads these files and when the test function is called, the API takes each cue and context and initiates a recall for a user-defined number of iterations. The outputs of the network are compared to the list of used patterns. Labels of recalled patterns as well as the sum of activation changes in the intermediate layers are written to log files in the same directory as the network specification file.
+</p>
+
+<a name="6"></a>
+<h3>Usage</h3>
+<p>
+In order to program custom simulation code, the user must adhere to the following API usage guidelines, assuming the provided <code class="yellow">Main.cpp</code> file will be used. This file already creates a <code class="cyan">SequenceAPI</code> instance, which must be externally declared in the custom simulation file:</p>
+<pre class="green">
+extern SequenceAPI *gSequenceAPI;
+</pre>
+<p>The API is itself a class called <code class="cyan">SequenceAPI</code> and which must be instantiated (as is done inside <code class="yellow">Main.cpp</code>) before any API call is made. In addition, two functions should be defined, which are declared as:</p>
+<pre class="green">
+bool InitNetwork( void );
+void DoSimulation( void );
+</pre>
+<p>
+In the <code class="green">InitNetwork()</code> procedure, calls to set up the network architecture plus parameters should be made. A typical sequence of calls is a follows:</p>
+<p>
+&#8658;&nbsp;Any console output from the library can be redirected to file by providing an initiated and opened <code class="cyan">ofstream</code> instance, but by default it goes to <code class="yellow">cout</code> so the above call does not have to be made.</p>
+<pre class="green">
+gSequenceAPI->SetSequenceLog( &amp;cout ); 
+</pre>
+<p>
+&#8658;&nbsp;The next call allocates the network objects and initializes it using the given network specification file. The API library returns an error value if it could not allocate or initialize the network. The return code must be checked to allow for safely aborting the simulation.</p>
+<pre class="green">
+seqErr = gSequenceAPI->SequenceSetupNetwork( true );
+if ( seqErr != kNoErr ) return false;
+</pre>
+<p>
+&#8658;&nbsp;The network specification file indicates the maximum and incremental values for the modified SAM cell parameters, and the API library will set each intermediate layer to the appropriate values by starting with the maximum allowable value and decrementing it for each additional layer. The following code snippet below illustrates how to programmatically set custom parameters. It sets the incremental value for leaky integration, subtraction, and threshold by dividing the maximum parameter value by the total number of intermediate layers plus 1 (for a list of constants, see <code class="yellow">SeqGlobal.h</code>):
+</p>
+<pre class="green">
+int k = gSequenceAPI->SequenceGetNumLayers();
+gSequenceAPI->SequenceSetParameter( kParAs, gSequenceAPI->SequenceGetParameter( kParAi ) / (k+1) );
+gSequenceAPI->SequenceSetParameter( kParPs, gSequenceAPI->SequenceGetParameter( kParPi ) / (k+1) );
+gSequenceAPI->SequenceSetParameter( kParTs, gSequenceAPI->SequenceGetParameter( kParTi ) / (k+1) );
+</pre>
+<p>
+&#8658;&nbsp;Optionally display a summary of the network architecture and settings with the following call:
+</p>
+<pre class="green">
+gSequenceAPI->SequenceShow();
+</pre>
+<p>
+<br />The <code class="green">DoSimulation()</code> procedure will be responsible for the actual execution of a simulation. Observe the following key steps:</p>
+<p>
+&#8658;&nbsp;If training in <b>offline</b> mode, a pattern file should be loaded, using either</p>
+<pre class="green">
+seqErr = gSequenceAPI->SequenceLoadPatterns( idx );
+</pre>
+<p>
+if a set of sequences needs to be trained, or, if requiring only a single sequence:</p>
+<pre class="green">
+seqErr = gSequenceAPI->SequenceLoadPatterns( "sample" );
+</pre>
+<p>
+In the latter case, pass a filename without the <code class="yellow">.pat</code> suffix (this will be automatically appended). Always check for errors using:</p>
+<pre class="green">
+if ( seqErr != kNoErr ) goto bail;
+</pre>
+<p>
+To set a given input pattern for cueing a recall, the following calls must be called in succession:</p>
+<pre class="green">
+gSequenceAPI->SequenceClearErr();             // clear errors and frequencies data in the Patterns object
+gSequenceAPI->SequenceGetInput( 0 );          // set recall cue to the first pattern in the Patterns object
+gSequenceAPI->SequenceSetContext( kOffline ); // indicate that context should be loaded from the Patterns object
+</pre>
+<p>
+For the offline mode, the API library can keep track of errors and frequencies during recalls. The frequencies correspond to the number of times a given pattern has been recalled. To see how this built-in functionality can be used, see the function <code class="green">MultiSequence::RecallSequences</code> in the file <code class="yellow">MultiSequence.cpp</code>.
+</p><p>
+&#8658;&nbsp;For the <b>online</b> training mode, the user must provide the API library with input patterns. Assuming <code class="green">myContext</code> is an allocated <code class="green">float*</code>, setting a specific context for a sequence can be done with:</p>
+<pre class="green">
+for ( int i = 0; i &lt; gSequenceAPI->SequenceGetContextSize(); i++ ) 
+    gSequenceAPI->SequenceSetContext( i, myContext[i] );
+</pre>
+<p>
+The above code must be followed by the following API call, which informs the network object about the custom context values:</p>
+<pre class="green">
+gSequenceAPI->SequenceSetContext( kOnline );
+</pre>
+<p>
+To set a custom pattern of a given sequence for <b>training</b>, use the API call:</p>
+<pre class="green">
+for ( int i = 0; i &lt; gSequenceAPI->SequenceGetLayerSize(); i++ )
+    gSequenceAPI->SequenceSetNewInput( i, myPatterns[idx][i] );
+</pre>
+<p>
+But, to set a custom pattern of a given sequence for <b>recall</b>, use:</p>
+<pre class="green">
+for ( int i = 0; i &lt; gSequenceAPI->SequenceGetLayerSize(); i++ )
+    gSequenceAPI->SequenceSetInput( i, myPatterns[idx][i] );
+</pre>
+<p>
+&#8658;&nbsp;Before and during simulation, it may be desirable to reset particular network values. Values that can be reset are weights, activations as well as the coincidence detector history and learning rate. This can be called using a bitwise or operation of the appropriate constants (see SeqGlobal.h). Before commencing a simulation, call the following function to set the weights to zero:</p>
+<pre class="green">
+gSequenceAPI->SequenceReset( O_WT );
+</pre>
+<p>Before each presentation of a sequence, it is recommended to set activations and the coincidence detection history and learning rate to initial values:</p>
+<pre class="green">
+gSequenceAPI->SequenceReset( O_ACT | O_CD );
+</pre>
+<p>
+&#8658;&nbsp;For the online and offline training mode, appropriate API calls are available. With <b>offline</b> training, use:</p>
+<pre class="green">
+gSequenceAPI->SequenceTrainFile();
+</pre>
+<p>
+And with <b>online</b> training:</p>
+<pre class="green">
+gSequenceAPI->SequenceTrainSingle();
+</pre>
+<p>
+&#8658;&nbsp;Invoking a recall, however, requires the same API call for both online and offline modes, but context and cue must have been set correctly (see above):</p>
+<pre class="green">
+gSequenceAPI->SequenceRecall();
+</pre>
+
+
+<p>
+<br />Other useful API calls:</p>
+<p>
+&#8658;&nbsp;As described earlier, sequences can be either cyclic or non-cyclic. Use the following API call to manually set a sequence type in online mode (or to bypass the type specified in a pattern file), but it can also be specified with a command line option. Parameters are one of <code class="red">O_INF</code> (cyclic), <code class="red">O_END</code> (last pattern points to last pattern), or <code class="red">O_NOISE</code> (last pattern points to vector with low amplitude random values).</p>
+<pre class="green">
+gSequenceAPI->SequenceSetOverrideType( O_INF );
+</pre>
+
+<p>
+&#8658;&nbsp;Naturally, it would desirable to store the trained weights for future analysis or re-use. The following code-snippet saves the weights from intermediate layers and from the input context layer to files <code class="yellow">seq.wts</code> and <code class="yellow">seqc.wts</code> in the same directory as the network specification file:</p>
+<pre class="green">
+strcpy( filename, gSequenceAPI->SequenceGetDirectory());
+strcat( filename, "/seq" );	
+gSequenceAPI->SequenceSaveWeights( filename );
+strcpy( filename, gSequenceAPI->SequenceGetDirectory());
+strcat( filename, "/seqc" );	
+gSequenceAPI->SequenceSaveContext( filename );
+</pre>
+<p>
+Loading weights proceeds similarly, using <code class="green">SequenceLoadWeights()</code> and <code class="green">SequenceLoadContext()</code>.</p>
+
+<p>
+&#8658;&nbsp;The SequenceNet API provides a variety of accessor functions to retrieve specific network data as well as display them, grouped under the same <code class="green">SequenceAPI::SequenceData</code> header. To get the sum of activation values over all intermediate layers, use:
+</p>
+<pre class="green">
+float sumAct = gSequenceAPI->SequenceData( kModuleHidden );
+</pre>
+<p>
+Display various network values in the console using the following API call. The <code class="green">identifier</code> can be any of <code class="red">kModuleHidden</code>, <code class="red">kModuleOutput</code>, <code class="red">kModuleCD</code>, and <code class="red">kModuleOutContext</code>. The <code class="green">type</code> is either <code class="red">O_ACT</code> or <code class="red">O_WT</code>, but this value is ignored if the <code class="green">identifier</code> is <code class="red">kModuleOutput</code> or <code class="red">kModuleCD</code>. When displaying weights from the intermediate layers, use <code class="green">idx</code> to specify the intermediate layer (the range is from 0 to the total number of intermediate layers). </p>
+<pre class="green">
+gSequenceAPI->SequenceData( int identifier, int type, int idx );
+</pre>
+<p>
+To use the other <code class="green">SequenceData()</code> API calls, the user has to provide an allocated buffer, the contents of which the API will replace with the desired network data (e.g. activation vectors or weight matrices). To obtain a weight matrix, allocate a buffer with the number of rows matching the size of the sending layer, identified with <code class="green">from_ident</code> (using the same constants as summed above), and the number of columns matching the size of the receiving layer, identified with <code class="green">to_ident</code>. If the sending layer is an intermediate layer, its index needs also be specified. Optionally, the returned values can be scaled for displaying with, for example, openGL (by default the scale value is 1.0).  
+</p>
+<pre class="green">
+gSequenceAPI->SequenceData( int from_ident, int to_ident, int idx, float** data, float scale = 1.0 );
+</pre>
+<p>
+To obtain an activation vector, allocate a buffer the size of the targeted layer, identified with <code class="green">identifier</code>. If an index <code class="green">idx</code> is not specified and the <code class="green">identifier</code> is <code class="red">kModuleHidden</code>, then the API will return a concatenation of the activations of all intermediate layers. In this case, the length of the buffer must equal the product of the intermediate layer size and the number of intermediate layers.  
+</p>
+<pre class="green">
+gSequenceAPI->SequenceData( int identifier, float* data, int idx = -1, float scale = 1.0 );
+</pre>
+
+<p>
+It is recommended to study the example code files in the <code class="yellow">simulations/</code> folder and the comments inside <code class="yellow">Sequence.cpp</code> and <code class="yellow">Sequence.h</code>. The file <code class="yellow">Utilities.cpp</code> also contains a set of useful functions, including matrix allocation and disposal.
+</p>
+</body>
+</html>
